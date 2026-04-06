@@ -15,58 +15,108 @@
 </div>
 
 <div class="admin-card mb-3">
-    <form method="GET" action="{{ route('admin.careers.index') }}" class="d-flex gap-3 align-items-end">
-        <div class="flex-grow-1">
-            <label class="form-label-admin">Search</label>
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search careers..." class="form-input-admin search-input">
+    <form method="GET" action="{{ route('admin.careers.index') }}">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-7">
+                <label class="form-label-admin">Search</label>
+                <div class="search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" name="search" value="{{ request('search') }}"
+                        placeholder="Search by career name..." class="form-input-admin search-input">
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn-admin btn-primary-admin flex-grow-1" style="justify-content:center;">
+                        <i class="fa-solid fa-filter"></i> Filter
+                    </button>
+                    <a href="{{ route('admin.careers.index') }}" class="btn-admin btn-outline-admin">Reset</a>
+                </div>
             </div>
         </div>
-        <button type="submit" class="btn-admin btn-outline-admin" style="height:42px;"><i class="fa-solid fa-filter"></i> Filter</button>
-        <a href="{{ route('admin.careers.index') }}" class="btn-admin btn-outline-admin" style="height:42px;">Reset</a>
     </form>
 </div>
 
 <div class="admin-card">
-    <table class="admin-table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Career Name</th>
-                <th>Description</th>
-                <th>Rules</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($careers as $career)
-            <tr>
-                <td style="color:var(--muted); font-size:0.8rem;">{{ $career->id }}</td>
-                <td><span style="font-weight:600;">{{ $career->career_name }}</span></td>
-                <td style="font-size:0.8rem; color:var(--muted); max-width:260px;">{{ Str::limit($career->description, 60) ?? '—' }}</td>
-                <td>
-                    <span class="badge-pill badge-technical">{{ $career->rules_count }} skills</span>
-                </td>
-                <td>
-                    <div class="d-flex gap-2">
-                        <a href="{{ route('admin.careers.edit', $career) }}" class="btn-admin btn-outline-admin" style="padding:5px 12px; font-size:0.78rem;">
-                            <i class="fa-solid fa-pen"></i> Edit
-                        </a>
-                        <button type="button" class="btn-admin btn-danger-admin del-btn" style="padding:5px 12px; font-size:0.78rem;"
-                            data-name="{{ $career->career_name }}"
-                            data-action="{{ route('admin.careers.destroy', $career) }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-    <div class="mt-3 d-flex justify-content-center">
-        {{ $careers->links() }}
+    <div style="overflow-x: auto;">
+        <table class="admin-table" style="min-width: 600px;">
+            <thead>
+                <tr>
+                    <th style="width:50px;">#</th>
+                    <th>Career Name</th>
+                    <th>Description</th>
+                    <th style="width:100px;">Rules</th>
+                    <th style="width:130px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($careers as $career)
+                <tr>
+                    <td style="color:var(--muted); font-size:0.78rem;">{{ $career->id }}</td>
+                    <td style="font-weight:600;">{{ $career->career_name }}</td>
+                    <td style="font-size:0.8rem; color:var(--muted);">
+                        {{ Str::limit($career->description, 55) ?: '—' }}
+                    </td>
+                    <td>
+                        <span class="badge-pill badge-technical">{{ $career->rules_count }} skills</span>
+                    </td>
+                    <td>
+                        <div class="d-flex gap-2">
+                            <a href="{{ route('admin.careers.edit', $career) }}"
+                                class="btn-admin btn-outline-admin" style="padding:5px 10px; font-size:0.75rem;">
+                                <i class="fa-solid fa-pen"></i> Edit
+                            </a>
+                            <button type="button" class="btn-admin btn-danger-admin del-btn"
+                                style="padding:5px 10px; font-size:0.75rem;"
+                                data-name="{{ $career->career_name }}"
+                                data-action="{{ route('admin.careers.destroy', $career) }}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" style="text-align:center; padding:2.5rem; color:var(--muted);">
+                        <i class="fa-solid fa-briefcase" style="font-size:1.5rem; display:block; margin-bottom:0.75rem;"></i>
+                        No career domains found.
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
+@if ($careers->hasPages())
+<div class="mt-3 d-flex justify-content-center flex-wrap gap-2">
+
+    {{-- Prev --}}
+    @if ($careers->onFirstPage())
+        <span class="btn-admin btn-outline-admin disabled">Prev</span>
+    @else
+        <a href="{{ $careers->appends(request()->query())->previousPageUrl() }}" class="btn-admin btn-outline-admin">Prev</a>
+    @endif
+
+    {{-- Pages --}}
+    @foreach ($careers->getUrlRange(
+        max(1, $careers->currentPage() - 2),
+        min($careers->lastPage(), $careers->currentPage() + 2)
+    ) as $page => $url)
+        @if ($page == $careers->currentPage())
+            <span class="btn-admin btn-primary-admin">{{ $page }}</span>
+        @else
+            <a href="{{ $careers->appends(request()->query())->url($page) }}" class="btn-admin btn-outline-admin">{{ $page }}</a>
+        @endif
+    @endforeach
+
+    {{-- Next --}}
+    @if ($careers->hasMorePages())
+        <a href="{{ $careers->appends(request()->query())->nextPageUrl() }}" class="btn-admin btn-outline-admin">Next</a>
+    @else
+        <span class="btn-admin btn-outline-admin disabled">Next</span>
+    @endif
+
+</div>
+@endif
 </div>
 
 {{-- Delete modal --}}

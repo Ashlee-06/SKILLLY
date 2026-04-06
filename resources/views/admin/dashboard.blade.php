@@ -6,37 +6,37 @@
 
 {{-- Stats --}}
 <div class="row g-3 mb-4">
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#a5b4fc;">{{ $stats['users'] }}</div>
             <div class="stat-label">Total Users</div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#86efac;">{{ $stats['analyses'] }}</div>
             <div class="stat-label">Analyses</div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#fcd34d;">{{ $stats['today'] }}</div>
             <div class="stat-label">Today</div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#fdba74;">{{ $stats['this_week'] }}</div>
             <div class="stat-label">This Week</div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#d8b4fe;">{{ $stats['skills'] }}</div>
             <div class="stat-label">Skills</div>
         </div>
     </div>
-    <div class="col-md-2">
+    <div class="col-6 col-md-4 col-lg-2">
         <div class="stat-card">
             <div class="stat-num" style="color:#f9a8d4;">{{ $stats['careers'] }}</div>
             <div class="stat-label">Careers</div>

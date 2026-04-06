@@ -32,12 +32,12 @@ class CareerController extends Controller
     public function store(Request $request)
     {
         $data = $request->validate([
-            'career_name'          => 'required|string|max:150|unique:career_domains,career_name',
-            'description'          => 'nullable|string|max:500',
-            'skills'               => 'nullable|array',
-            'skills.*.skill_id'    => 'required|exists:skills,id',
-            'skills.*.is_mandatory'=> 'nullable|boolean',
-            'skills.*.weight'      => 'required|integer|min:1|max:10',
+            'career_name' => 'required|string|max:150|unique:career_domains,career_name',
+            'description' => 'nullable|string|max:500',
+            'skills'      => 'nullable|array',
+            'skills.*.skill_id' => 'required|exists:skills,id',
+            'skills.*.weight'   => 'required|integer|min:1|max:10',
+            // is_mandatory intentionally not validated — checkboxes send "on" not true/false
         ]);
 
         $career = CareerDomain::create([
@@ -45,15 +45,13 @@ class CareerController extends Controller
             'description' => $data['description'] ?? null,
         ]);
 
-        if (!empty($data['skills'])) {
-            foreach ($data['skills'] as $rule) {
-                CareerSkillRule::create([
-                    'career_domain_id' => $career->id,
-                    'skill_id'         => $rule['skill_id'],
-                    'is_mandatory'     => isset($rule['is_mandatory']) ? true : false,
-                    'weight'           => $rule['weight'],
-                ]);
-            }
+        foreach (($request->input('skills', [])) as $rule) {
+            CareerSkillRule::create([
+                'career_domain_id' => $career->id,
+                'skill_id'         => $rule['skill_id'],
+                'is_mandatory'     => !empty($rule['is_mandatory']),
+                'weight'           => (int) $rule['weight'],
+            ]);
         }
 
         return redirect()->route('admin.careers.index')
@@ -70,12 +68,11 @@ class CareerController extends Controller
     public function update(Request $request, CareerDomain $career)
     {
         $data = $request->validate([
-            'career_name'          => 'required|string|max:150|unique:career_domains,career_name,' . $career->id,
-            'description'          => 'nullable|string|max:500',
-            'skills'               => 'nullable|array',
-            'skills.*.skill_id'    => 'required|exists:skills,id',
-            'skills.*.is_mandatory'=> 'nullable|boolean',
-            'skills.*.weight'      => 'required|integer|min:1|max:10',
+            'career_name' => 'required|string|max:150|unique:career_domains,career_name,' . $career->id,
+            'description' => 'nullable|string|max:500',
+            'skills'      => 'nullable|array',
+            'skills.*.skill_id' => 'required|exists:skills,id',
+            'skills.*.weight'   => 'required|integer|min:1|max:10',
         ]);
 
         $career->update([
@@ -83,18 +80,15 @@ class CareerController extends Controller
             'description' => $data['description'] ?? null,
         ]);
 
-        // Replace all rules
         CareerSkillRule::where('career_domain_id', $career->id)->delete();
 
-        if (!empty($data['skills'])) {
-            foreach ($data['skills'] as $rule) {
-                CareerSkillRule::create([
-                    'career_domain_id' => $career->id,
-                    'skill_id'         => $rule['skill_id'],
-                    'is_mandatory'     => isset($rule['is_mandatory']) ? true : false,
-                    'weight'           => $rule['weight'],
-                ]);
-            }
+        foreach (($request->input('skills', [])) as $rule) {
+            CareerSkillRule::create([
+                'career_domain_id' => $career->id,
+                'skill_id'         => $rule['skill_id'],
+                'is_mandatory'     => !empty($rule['is_mandatory']),
+                'weight'           => (int) $rule['weight'],
+            ]);
         }
 
         return redirect()->route('admin.careers.index')
