@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,9 +13,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            SkillSeeder::class,           // Seed all skills first
-            CareerDomainSeeder::class,   // Seed career domains next
-            CareerSkillRuleSeeder::class, // Seed rules last
+            SkillSeeder::class,
+            CareerDomainSeeder::class,
+            CareerSkillRuleSeeder::class,
         ]);
+
+        User::updateOrCreate(
+            ['email' => 'ashleedasilva.internship@gmail.com'],
+            [
+                'name' => 'Ashlee',
+                'password' => bcrypt('password'),
+                'is_admin' => true,  
+          ]
+        );
     }
 }
