@@ -1,17 +1,22 @@
 #!/bin/sh
 
-# Use Railway's dynamic PORT (defaults to 80 locally)
-PORT=${PORT:-80}
+PORT=${PORT:-8000}
 
-# Inject the port into nginx config
-sed -i "s/listen 80;/listen ${PORT};/" /etc/nginx/sites-available/default
+echo "==> Using PORT: $PORT"
 
-# Run Laravel setup commands
+# Remove old listen line and replace cleanly
+sed -i "s/listen [0-9]*;/listen ${PORT};/" /etc/nginx/sites-available/default
+
+echo "==> Nginx listen config:"
+grep "listen" /etc/nginx/sites-available/default
+
 php artisan config:clear
-php artisan config:cache
 php artisan migrate --force
+php artisan config:cache
 php artisan storage:link
 
-# Start nginx in background, then php-fpm in foreground
+echo "==> Starting nginx..."
 service nginx start
+
+echo "==> Starting php-fpm..."
 php-fpm
